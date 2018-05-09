@@ -4,12 +4,11 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.env.Environment;
 
-//import org.springframework.boot.CommandLineRunner;
-//import org.springframework.context.annotation.Bean;
-//import org.springframework.boot.autoconfigure.SpringBootApplication;
-//import org.springframework.stereotype.Service;
+import org.springframework.core.annotation.Order;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Bean;
+
 
 @Configuration
 @EnableAutoConfiguration
@@ -22,15 +21,16 @@ public class BootdemoApplication {
 		SpringApplication.run(BootdemoApplication.class, args);
 	}
 
-//	@Bean
-//	public CommandLineRunner run( Environment environment) {
-//		return (args) -> {
-//			System.out.println("Booty!");
-//
-//		};
-//	}
-
-
-
+	// This appears to allow a process to be called.  Looks like an ORDER can be specified too.  Note that BootRunner is #2
+	// - looks like there's no guarantee that FIRST job entirely finishes before SECOND starts.
+	// In theory, could use this to launch a standalone task (but not sure that's sensible use of Spring Boot)
+	@Bean
+	@Order(1)
+	public CommandLineRunner demo() {
+		System.out.println("Running commandLineRunner: demo.  Argument list below ...");
+		return (args) -> {
+			System.out.println("Run args : " + args );
+		};
+	}
 
 }

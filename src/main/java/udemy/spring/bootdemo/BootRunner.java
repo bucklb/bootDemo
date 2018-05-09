@@ -5,7 +5,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Component
-@Order(1)   // in case we add other runners, need to state an order to run them
+@Order(2)   // in case we add other runners, need to state an order to run them
 public class BootRunner implements CommandLineRunner{
 
     @Override
