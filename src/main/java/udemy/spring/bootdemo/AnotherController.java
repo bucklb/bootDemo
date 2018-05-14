@@ -1,6 +1,7 @@
 package udemy.spring.bootdemo;
 
 
+import com.sun.org.apache.xpath.internal.operations.Quo;
 import org.springframework.http.*;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -97,16 +98,39 @@ public class AnotherController {
     public String testQuoteAsEntity(){
         RestTemplate restTemplate = new RestTemplate();
         Quote quote=new Quote();
+        Quote getQuote;
+        Quote postQuote;
 
-        // Grab a quote
-        Quote getQuote=restTemplate.getForObject("http://localhost:8080/headed/quoteEntity/",Quote.class);
+        // Grab a quote - one way or another
+        if(0==1) {
+            // Use getForObject
+            getQuote = restTemplate.getForObject(
+                    "http://localhost:8080/headed/quoteEntity/", Quote.class);
+        } else {
+            // Use getForEntity (gives us scope to bugger around with headers??)
+            System.out.println("Using getForEntity");
+            ResponseEntity<Quote> responseGetEntityQuote = restTemplate.getForEntity(
+                    "http://localhost:8080/headed/quoteEntity/", Quote.class);
+            getQuote= responseGetEntityQuote.getBody();
+            System.out.println(responseGetEntityQuote.toString());
+        }
         System.out.println(getQuote.toString());
 
         // Post a quote and expect "Plagiarised" in response
-        Quote postQuote=restTemplate.postForObject("http://localhost:8080/headed/quoteEntity/",getQuote,Quote.class);
+        if(0==1){
+            postQuote=restTemplate.postForObject(
+                    "http://localhost:8080/headed/quoteEntity/",getQuote,Quote.class);
+        } else {
+            System.out.println("Using postForEntity");
+            ResponseEntity<Quote> responsePostEntityQuote=restTemplate.postForEntity(
+                    "http://localhost:8080/headed/quoteEntity/",getQuote,Quote.class);
+            postQuote=responsePostEntityQuote.getBody();
+            System.out.println(responsePostEntityQuote.toString());
+        }
+
         System.out.println(postQuote.toString());
 
-        return postQuote.toString();
+        return "Was " + getQuote.toString() + "\nNow " + postQuote.toString();
     }
 
     //
