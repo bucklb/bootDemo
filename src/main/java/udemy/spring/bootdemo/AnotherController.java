@@ -4,6 +4,7 @@ package udemy.spring.bootdemo;
 import org.springframework.http.*;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,7 +24,7 @@ import static com.sun.deploy.net.HttpRequest.CONTENT_TYPE;
 @RestController
 public class AnotherController {
 
-    @RequestMapping(value="", method = RequestMethod.GET)
+    @RequestMapping(value="/quote", method = RequestMethod.GET)
     public String getQuote(){
 
         // Vaguely OK with picking through the RESPONSE http structure.  Still need to look at REQUEST though
@@ -54,9 +55,59 @@ public class AnotherController {
         Quote q=  responseEntityQuote.getBody();
         System.out.println("Quote's val : " + q.getValue());
 
-        return response.toString();
+        return q.toString();
     }
 
+    //
+    // Time to move away from String & JSon ??  In this case we expect to respond with a quote
+    //
+    @RequestMapping(value="/quoteEntity", method = RequestMethod.GET)
+    public ResponseEntity<Quote> getQuoteAsEntity() {
+
+        if(1==1) {
+            // Use getForEntity to get a quote from afar
+            RestTemplate restTemplate = new RestTemplate();
+            ResponseEntity<Quote> responseEntityQuote = restTemplate.getForEntity(
+                    "http://gturnquist-quoters.cfapps.io/api/random",
+                    Quote.class);
+
+            // Pull the quote from the response.  Would allow us to bugger around with it ??
+            Quote quote = responseEntityQuote.getBody();
+
+            // Pass back the quote & status in an Entity ...
+            return new ResponseEntity<Quote>(quote, HttpStatus.OK);
+        } else {
+            // was useful to have a fixed response.  Hopefully less so now
+            return new ResponseEntity<Quote>(new Quote(), HttpStatus.OK);
+        }
+    }
+
+    @RequestMapping(value="/quoteEntity", method = RequestMethod.POST)
+    public ResponseEntity<Quote> postQuoteAsEntity(@RequestBody Quote quote) {
+
+        // Basically, screw around with the quote.  Perhaps just set type = "Plagiarism"
+        if( quote != null) {
+            quote.setType("Thoroughly plagiarised");
+        }
+
+        return new ResponseEntity<Quote>(quote,HttpStatus.OK);
+    }
+
+    @RequestMapping(value="/quoteTest", method = RequestMethod.GET)
+    public String testQuoteAsEntity(){
+        RestTemplate restTemplate = new RestTemplate();
+        Quote quote=new Quote();
+
+        // Grab a quote
+        Quote getQuote=restTemplate.getForObject("http://localhost:8080/headed/quoteEntity/",Quote.class);
+        System.out.println(getQuote.toString());
+
+        // Post a quote and expect "Plagiarised" in response
+        Quote postQuote=restTemplate.postForObject("http://localhost:8080/headed/quoteEntity/",getQuote,Quote.class);
+        System.out.println(postQuote.toString());
+
+        return postQuote.toString();
+    }
 
     //
     // Look at what a post object could/should look like ...
@@ -72,7 +123,6 @@ public class AnotherController {
 
         System.out.println("request toString : " + request.toString());
         System.out.println("request headers  : " + request.getHeaders().toString());
-
 
         MultiValueMap<String, Object> parts = new LinkedMultiValueMap<String, Object>();
         parts.add("quote", quote);
