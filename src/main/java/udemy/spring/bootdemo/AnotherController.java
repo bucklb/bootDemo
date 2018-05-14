@@ -1,7 +1,9 @@
 package udemy.spring.bootdemo;
 
 
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -10,6 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 import org.json.simple.JSONObject;
 import udemy.spring.bootdemo.Domain.Quote;
+
+import static com.sun.deploy.net.HttpRequest.CONTENT_TYPE;
 
 
 //
@@ -52,6 +56,58 @@ public class AnotherController {
 
         return response.toString();
     }
+
+
+    //
+    // Look at what a post object could/should look like ...
+    //
+    @RequestMapping(value="/postIt", method = RequestMethod.GET)
+    public String postIt() {
+
+        Quote quote=new Quote();
+        quote.setType("EMPTY");
+        HttpEntity<Quote> request= new HttpEntity<>(quote);
+
+        RestTemplate restTemplate = new RestTemplate();
+
+        System.out.println("request toString : " + request.toString());
+        System.out.println("request headers  : " + request.getHeaders().toString());
+
+
+        MultiValueMap<String, Object> parts = new LinkedMultiValueMap<String, Object>();
+        parts.add("quote", quote);
+
+        Object response = restTemplate.postForObject("http://localhost:8080/json/", parts, String.class);
+//        ResponseEntity<String> response=restTemplate.postForEntity("http::/localhost:8080/json/",parts,String.class);
+
+        System.out.println("response         : " + response.toString());
+
+
+        return quote.toString();
+    }
+
+    // Might finally have something that vaguely looks like a meaningful POST approach
+    @RequestMapping(value="/x", method = RequestMethod.GET)
+    public String x(){
+        RestTemplate restTemplate = new RestTemplate();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        MultiValueMap<String, String> map= new LinkedMultiValueMap<>();
+        map.add("email", "first.last@example.com");
+
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
+
+        ResponseEntity<String> response = restTemplate.postForEntity( "http://localhost:8080/json/", request , String.class );
+
+        System.out.println("request          : " + request.toString());
+        System.out.println("response         : " + response.toString());
+
+        return response.toString();
+    }
+
+
 
 
 }

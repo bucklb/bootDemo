@@ -1,8 +1,7 @@
 package udemy.spring.bootdemo;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpRequest;
+import org.springframework.web.bind.annotation.*;
 
 // stuff to allow access to other URLs (as long as they return straight text)
 import org.springframework.web.client.RestTemplate;
@@ -52,6 +51,11 @@ public class BootdemoController {
     // Play with returning JSon
     @RequestMapping(value="/json",method = RequestMethod.POST)
     public JSONObject postJson() {
+
+        // How do I get to the payload?
+
+
+
         JSONObject json=new JSONObject();
         json.put("number","69");
         return json;
