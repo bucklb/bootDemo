@@ -1,22 +1,43 @@
 package udemy.spring.bootdemo;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpRequest;
+import org.springframework.web.bind.annotation.*;
 
 // stuff to allow access to other URLs (as long as they return straight text)
 import org.springframework.web.client.RestTemplate;
 import org.json.simple.JSONObject;
+import udemy.spring.bootdemo.Domain.Quote;
 
 
 @RequestMapping("")
 @RestController
 public class BootdemoController {
 
-    // in case no link is requested, give them something to look at
+
+    // Play with full request (and full response) formats, rather than dicky stuff doing now.
+
+
+
+
+    @RequestMapping(value="/quote", method = RequestMethod.GET)
+    public String getQuote(){
+        RestTemplate restTemplate = new RestTemplate();
+        Quote quote = restTemplate.getForObject(
+                "http://gturnquist-quoters.cfapps.io/api/random",
+                Quote.class);
+        return quote.toString();
+    }
+
+
+    // in case no link is requested, give them something to look at.  A clue as to what will respond would be good
     @RequestMapping(value="",method = RequestMethod.GET)
     public String sayHome() {
-        return "There's no place like it";
+        String s = "There's no place like it\n\n"+
+                   "postman : get     :returns simple string\n"+
+                   "json    : put/get : returns a basic json object\n"+
+                   "echo    : get     : calls the jason end point on your behalf\n"+
+                   "remote  : put/get : stuff from another server (localhost:9090/mvc/)\n";
+        return s;
     }
 
     // Play with returning JSon
@@ -30,6 +51,11 @@ public class BootdemoController {
     // Play with returning JSon
     @RequestMapping(value="/json",method = RequestMethod.POST)
     public JSONObject postJson() {
+
+        // How do I get to the payload?
+
+
+
         JSONObject json=new JSONObject();
         json.put("number","69");
         return json;
