@@ -1,7 +1,7 @@
 package udemy.spring.bootdemo;
 
 
-import com.sun.org.apache.xpath.internal.operations.Quo;
+//import com.sun.org.apache.xpath.internal.operations.Quo;
 import org.springframework.http.*;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -15,7 +15,7 @@ import org.springframework.web.client.RestTemplate;
 import org.json.simple.JSONObject;
 import udemy.spring.bootdemo.Domain.Quote;
 
-import static com.sun.deploy.net.HttpRequest.CONTENT_TYPE;
+//import static com.sun.deploy.net.HttpRequest.CONTENT_TYPE;
 
 
 //
