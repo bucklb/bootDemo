@@ -2,6 +2,7 @@ package udemy.spring.bootdemo;
 
 
 //import com.sun.org.apache.xpath.internal.operations.Quo;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -25,8 +26,15 @@ import udemy.spring.bootdemo.Domain.Quote;
 @RestController
 public class AnotherController {
 
+    @Value("${server.port}")
+    int tomcatPort;
+
+
     @RequestMapping(value="/quote", method = RequestMethod.GET)
     public String getQuote(){
+
+        System.out.println(tomcatPort);
+
 
         // Vaguely OK with picking through the RESPONSE http structure.  Still need to look at REQUEST though
 
@@ -101,29 +109,33 @@ public class AnotherController {
         Quote getQuote;
         Quote postQuote;
 
+
+
+
+
         // Grab a quote - one way or another
-        if(0==1) {
+        if(1==1) {
             // Use getForObject
             getQuote = restTemplate.getForObject(
-                    "http://localhost:8080/headed/quoteEntity/", Quote.class);
+                    "http://localhost:8081/headed/quoteEntity/", Quote.class);
         } else {
             // Use getForEntity (gives us scope to bugger around with headers??)
             System.out.println("Using getForEntity");
             ResponseEntity<Quote> responseGetEntityQuote = restTemplate.getForEntity(
-                    "http://localhost:8080/headed/quoteEntity/", Quote.class);
+                    "http://localhost:8081/headed/quoteEntity/", Quote.class);
             getQuote= responseGetEntityQuote.getBody();
             System.out.println(responseGetEntityQuote.toString());
         }
-        System.out.println(getQuote.toString());
+       System.out.println(getQuote.toString());
 
         // Post a quote and expect "Plagiarised" in response
         if(0==1){
             postQuote=restTemplate.postForObject(
-                    "http://localhost:8080/headed/quoteEntity/",getQuote,Quote.class);
+                    "http://localhost:8081/headed/quoteEntity/",getQuote,Quote.class);
         } else {
             System.out.println("Using postForEntity");
             ResponseEntity<Quote> responsePostEntityQuote=restTemplate.postForEntity(
-                    "http://localhost:8080/headed/quoteEntity/",getQuote,Quote.class);
+                    "http://localhost:8081/headed/quoteEntity/",getQuote,Quote.class);
             postQuote=responsePostEntityQuote.getBody();
             System.out.println(responsePostEntityQuote.toString());
         }
@@ -151,8 +163,8 @@ public class AnotherController {
         MultiValueMap<String, Object> parts = new LinkedMultiValueMap<String, Object>();
         parts.add("quote", quote);
 
-        Object response = restTemplate.postForObject("http://localhost:8080/json/", parts, String.class);
-//        ResponseEntity<String> response=restTemplate.postForEntity("http::/localhost:8080/json/",parts,String.class);
+        Object response = restTemplate.postForObject("http://localhost:8081/json/", parts, String.class);
+//        ResponseEntity<String> response=restTemplate.postForEntity("http::/localhost:8081/json/",parts,String.class);
 
         System.out.println("response         : " + response.toString());
 
@@ -173,7 +185,7 @@ public class AnotherController {
 
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
 
-        ResponseEntity<String> response = restTemplate.postForEntity( "http://localhost:8080/json/", request , String.class );
+        ResponseEntity<String> response = restTemplate.postForEntity( "http://localhost:8081/json/", request , String.class );
 
         System.out.println("request          : " + request.toString());
         System.out.println("response         : " + response.toString());
