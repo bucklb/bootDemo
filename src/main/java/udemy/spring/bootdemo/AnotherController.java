@@ -29,8 +29,17 @@ public class AnotherController {
     @Value("${server.port}")
     int tomcatPort;
 
+    // Quick summary of what's here
+    @RequestMapping(value="", method = RequestMethod.GET)
+    public String getHeaded() {
+        String s = "looking at entity & header\n\n"+
+                "quoteString: get      : returns simple string representation of a quote\n"+
+                "quoteEntity: post/get : returns a quote as an entity\n";
 
-    @RequestMapping(value="/quote", method = RequestMethod.GET)
+        return s;
+    }
+
+    @RequestMapping(value="/quoteString", method = RequestMethod.GET)
     public String getQuote(){
 
         System.out.println(tomcatPort);
@@ -97,6 +106,9 @@ public class AnotherController {
         // Basically, screw around with the quote.  Perhaps just set type = "Plagiarism"
         if( quote != null) {
             quote.setType("Thoroughly plagiarised");
+        } else {
+            quote=new Quote();
+            quote.setType("Spontaneously appeared!!!");
         }
 
         return new ResponseEntity<Quote>(quote,HttpStatus.OK);
@@ -109,20 +121,16 @@ public class AnotherController {
         Quote getQuote;
         Quote postQuote;
 
-
-
-
-
         // Grab a quote - one way or another
-        if(1==1) {
+        if(0==1) {
             // Use getForObject
             getQuote = restTemplate.getForObject(
-                    "http://localhost:8081/headed/quoteEntity/", Quote.class);
+                    "http://localhost:"+tomcatPort+"/headed/quoteEntity/", Quote.class);
         } else {
             // Use getForEntity (gives us scope to bugger around with headers??)
             System.out.println("Using getForEntity");
             ResponseEntity<Quote> responseGetEntityQuote = restTemplate.getForEntity(
-                    "http://localhost:8081/headed/quoteEntity/", Quote.class);
+                    "http://localhost:"+tomcatPort+"/headed/quoteEntity/", Quote.class);
             getQuote= responseGetEntityQuote.getBody();
             System.out.println(responseGetEntityQuote.toString());
         }
@@ -131,11 +139,11 @@ public class AnotherController {
         // Post a quote and expect "Plagiarised" in response
         if(0==1){
             postQuote=restTemplate.postForObject(
-                    "http://localhost:8081/headed/quoteEntity/",getQuote,Quote.class);
+                    "http://localhost:"+tomcatPort+"/headed/quoteEntity/",getQuote,Quote.class);
         } else {
             System.out.println("Using postForEntity");
             ResponseEntity<Quote> responsePostEntityQuote=restTemplate.postForEntity(
-                    "http://localhost:8081/headed/quoteEntity/",getQuote,Quote.class);
+                    "http://localhost:"+tomcatPort+"/headed/quoteEntity/",getQuote,Quote.class);
             postQuote=responsePostEntityQuote.getBody();
             System.out.println(responsePostEntityQuote.toString());
         }
@@ -148,7 +156,7 @@ public class AnotherController {
     //
     // Look at what a post object could/should look like ...
     //
-    @RequestMapping(value="/postIt", method = RequestMethod.GET)
+    @RequestMapping(value="/quoteViaMapAndObjectPost", method = RequestMethod.GET)
     public String postIt() {
 
         Quote quote=new Quote();
@@ -163,20 +171,25 @@ public class AnotherController {
         MultiValueMap<String, Object> parts = new LinkedMultiValueMap<String, Object>();
         parts.add("quote", quote);
 
-        Object response = restTemplate.postForObject("http://localhost:8081/json/", parts, String.class);
-//        ResponseEntity<String> response=restTemplate.postForEntity("http::/localhost:8081/json/",parts,String.class);
+        Object response = restTemplate.postForObject(
+////        ResponseEntity<String> response = restTemplate.postForEntity(
+                "http://localhost:"+tomcatPort+"/asJson/", parts, String.class);
+//        ResponseEntity<String> response=restTemplate.postForEntity("http::/localhost:"+tomcatPort+"/json/",parts,String.class);
 
-        System.out.println("response         : " + response.toString());
+        System.out.println("=====================================================================\n POST with MultiValueMap-Object");
+        System.out.println("request   : " + request.toString());
+        System.out.println("response  : " + response.toString());
 
-
-        return quote.toString();
+        return response.toString();
     }
 
     // Might finally have something that vaguely looks like a meaningful POST approach
-    @RequestMapping(value="/x", method = RequestMethod.GET)
+    @RequestMapping(value="/quoteViaMapAndEntityPost", method = RequestMethod.GET)
     public String x(){
+
         RestTemplate restTemplate = new RestTemplate();
 
+        // Pull together some header stuff
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
@@ -185,12 +198,15 @@ public class AnotherController {
 
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
 
-        ResponseEntity<String> response = restTemplate.postForEntity( "http://localhost:8081/json/", request , String.class );
+        ResponseEntity<String> response = restTemplate.postForEntity(
+                "http://localhost:"+tomcatPort+"/asJson/", request , String.class );
 
-        System.out.println("request          : " + request.toString());
-        System.out.println("response         : " + response.toString());
+        System.out.println("=====================================================================\n POST with MultiValueMap-Entity");
+        System.out.println("request   : " + request.toString());
+        System.out.println("response  : " + response.toString());
 
-        return response.toString();
+//        return response.toString();
+        return response.getBody().toString();
     }
 
 
