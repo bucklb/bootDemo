@@ -11,6 +11,14 @@ public class Quote {
     public Quote() {
     }
 
+    // Avoid messing around creating a new Quote object
+    public Quote(String type, long id, String quote ) {
+        Value value = new Value(id, quote);
+        this.value  = value;
+        this.type   = type;
+    }
+
+
     public String getType() {
         return type;
     }

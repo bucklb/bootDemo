@@ -1,4 +1,4 @@
-package udemy.spring.bootdemo;
+package udemy.spring.bootdemo.Controller;
 
 
 //import com.sun.org.apache.xpath.internal.operations.Quo;
@@ -6,15 +6,15 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 // stuff to allow access to other URLs (as long as they return straight text)
 import org.springframework.web.client.RestTemplate;
 import org.json.simple.JSONObject;
 import udemy.spring.bootdemo.Domain.Quote;
+
+import java.util.ArrayList;
+import java.util.List;
 
 //import static com.sun.deploy.net.HttpRequest.CONTENT_TYPE;
 
@@ -24,7 +24,9 @@ import udemy.spring.bootdemo.Domain.Quote;
 //
 @RequestMapping("/headed")
 @RestController
-public class AnotherController {
+public class HeadedController {
+
+    String BR="<br>";
 
     @Value("${server.port}")
     int tomcatPort;
@@ -32,8 +34,8 @@ public class AnotherController {
     // Quick summary of what's here
     @RequestMapping(value="", method = RequestMethod.GET)
     public String getHeaded() {
-        String s = "looking at entity & header\n\n"+
-                "quoteString: get      : returns simple string representation of a quote\n"+
+        String s = "looking at entity & header\n\n"+BR+BR+
+                "quoteString: get      : returns simple string representation of a quote\n"+BR+
                 "quoteEntity: post/get : returns a quote as an entity\n";
 
         return s;
@@ -70,7 +72,7 @@ public class AnotherController {
         System.out.println("QuoteClass  : " + responseEntityQuote.getClass() );
 
         // ?? Is the body (convertible to) a Quote object
-        Quote q=  responseEntityQuote.getBody();
+        Quote q =  responseEntityQuote.getBody();
         System.out.println("Quote's val : " + q.getValue());
 
         return q.toString();
@@ -114,6 +116,20 @@ public class AnotherController {
         return new ResponseEntity<Quote>(quote,HttpStatus.OK);
     }
 
+    // Pass back many quotes (glean them one by one).  Could allow caller to specify number to return ...
+    @RequestMapping(value = "/quoteEntities", method=RequestMethod.GET)
+    public ResponseEntity<List<Quote>> getQuoteList(){
+        RestTemplate restTemplate = new RestTemplate();
+        // Create a list to add quotes to
+        List<Quote> quoteList=new ArrayList<>();
+
+        for(int i=0; i<5; i++ ) {
+            quoteList.add(restTemplate.getForEntity(
+                    "http://localhost:" + tomcatPort + "/headed/quoteEntity/", Quote.class).getBody());
+        }
+        return new ResponseEntity<List<Quote>>(quoteList,HttpStatus.OK);
+    }
+    
     @RequestMapping(value="/quoteTest", method = RequestMethod.GET)
     public String testQuoteAsEntity(){
         RestTemplate restTemplate = new RestTemplate();
@@ -209,7 +225,19 @@ public class AnotherController {
         return response.getBody().toString();
     }
 
+    // Mostly a test for the SMI/verification guff
+    // Want to be able to pass in some parameters, but not ALL of them, all of the time
+    @RequestMapping(value="/testParams", method = RequestMethod.GET)
+    public ResponseEntity<String> y(@RequestParam(value="first", required = false) String first){
 
+        System.out.println("==================================================");
+        System.out.println("first : " + first);
+
+
+
+        //        Bare minimum
+        return new ResponseEntity<String>("a response, after a fashion",HttpStatus.OK);
+    }
 
 
 }

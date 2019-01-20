@@ -2,6 +2,7 @@ package udemy.spring.bootdemo;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
@@ -15,6 +16,7 @@ import udemy.spring.bootdemo.Domain.Quote;
 //import org.springframework.boot.web.client.RestTemplateBuilder;
 //import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+@SpringBootApplication
 @Configuration
 @EnableAutoConfiguration
 @ComponentScan(basePackages = "udemy.spring.bootdemo")
