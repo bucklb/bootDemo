@@ -4,9 +4,13 @@ package udemy.spring.bootdemo.Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import org.json.simple.JSONObject;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.client.RestTemplate;
 import udemy.spring.bootdemo.Domain.Quote;
+
+import javax.validation.Valid;
 
 /**
  *  @Author     me
@@ -66,10 +70,41 @@ public class QuoteService {
         return quote;
     }
 
+    // get a quote, so allow POST too
+    public Quote postQuote( Quote quote ) {
+
+        // Dummy up a quote to return
+        Quote q = new Quote("Groucho", quote.getValue().getId(), "Go & never darken my towels again!" );
+        return q;
+
+    }
+
+    // At string (NOTE: not the same as json - rather less sophisticated
+    public String getQuoteAsString(){
+        RestTemplate restTemplate = new RestTemplate();
+        Quote quote = restTemplate.getForObject( QUOTE_URL, Quote.class );
+        return quote.toString();
+    }
 
 
+    public JSONObject getQuoteAsJson() {
 
+        // Use getForEntity to get a quote from afar
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<Quote> responseEntityQuote = restTemplate.getForEntity( QUOTE_URL, Quote.class );
 
+        // Extract the quote proper from the response and pass back as Json
+        Quote quote = responseEntityQuote.getBody();
+        return getQuoteAsJSONObject(quote);
+    }
+
+    // get a quote, so allow POST too
+    public JSONObject postQuoteAsJson( Quote quote ) {
+
+        // Dummy up a quote to return
+        Quote q = new Quote("Groucho", quote.getValue().getId(), "Go & never darken my towels again!" );
+        return getQuoteAsJSONObject( q );
+    }
 
 
 

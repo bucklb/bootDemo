@@ -31,9 +31,11 @@ import java.net.URI;
 @RestController
 public class QuoteController {
 
-    // Allow service injection (not least for testing)
-    @Autowired
+    // Allow injection of the service that does the work ...
     private QuoteService quoteService;
+    public QuoteController(QuoteService quoteService){
+        this.quoteService = quoteService;
+    }
 
     // Pull in the port we're running on
     @Value("${server.port}")
@@ -44,10 +46,6 @@ public class QuoteController {
                    response = String.class)
     @RequestMapping(value="", method = RequestMethod.GET)
     public Quote getQuote(){
-//        RestTemplate restTemplate = new RestTemplate();
-//        Quote quote = restTemplate.getForObject(
-//                "http://gturnquist-quoters.cfapps.io/api/random",
-//                Quote.class);
         return quoteService.getQuote();
     }
 
@@ -58,15 +56,8 @@ public class QuoteController {
         // Will  want to determine/output whatever we got given at some point
         System.out.println("In postQuote = "+quote.toString());
 
-        // Dummy up a quote to return
-        Quote q = new Quote();
-        q.setType( "Groucho" );
-        q.setValue( new udemy.spring.bootdemo.Domain.Value());
-        q.getValue().setId( quote.getValue().getId() );
-        q.getValue().setQuote( "Go & never darken my towels again!" );
-
-        // People expecting jSon
-        return q;
+        // Mimic the effect of the post
+        return quoteService.postQuote( quote );
     }
 
 
@@ -75,11 +66,7 @@ public class QuoteController {
             response = String.class)
     @RequestMapping(value="/asString", method = RequestMethod.GET)
     public String getQuoteAsString(){
-        RestTemplate restTemplate = new RestTemplate();
-        Quote quote = restTemplate.getForObject(
-                "http://gturnquist-quoters.cfapps.io/api/random",
-                Quote.class);
-        return quote.toString();
+        return quoteService.getQuoteAsString();
     }
 
 
@@ -87,17 +74,8 @@ public class QuoteController {
     @RequestMapping(value="/asJson",method = RequestMethod.GET)
     @ApiOperation( value    = "get Random quote from t'internet and return as json object",
                    response = JSONObject.class)
-    public JSONObject getJson() {
-
-        // Use getForEntity to get a quote from afar
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<Quote> responseEntityQuote = restTemplate.getForEntity(
-                "http://gturnquist-quoters.cfapps.io/api/random",
-                Quote.class);
-
-        // Extract the quote proper from the response
-        Quote quote = responseEntityQuote.getBody();
-        return quoteService.getQuoteAsJSONObject(quote);
+    public JSONObject getQuoteAsJson() {
+        return quoteService.getQuoteAsJson();
     }
 
 
@@ -105,7 +83,7 @@ public class QuoteController {
     @RequestMapping( value="/asJson", method = RequestMethod.POST)
     public JSONObject postJson(@RequestBody @Valid final Quote quote) {
         // People expecting jSon
-        return quoteService.getQuoteAsJSONObject(postQuote(quote));
+        return quoteService.postQuoteAsJson( quote );
     }
 
 
